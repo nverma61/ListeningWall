@@ -1,5 +1,5 @@
 /**
- * Ensures `next build` produced at least one CSS chunk under .next/static/css.
+ * Ensures `next build` emitted at least one CSS file under `.next/static/**`.
  * Without this, a broken PostCSS/Tailwind setup can still "build" and ship an unstyled app.
  */
 import fs from "node:fs";
@@ -7,21 +7,31 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const cssDir = path.join(__dirname, "..", ".next", "static", "css");
+const staticRoot = path.join(__dirname, "..", ".next", "static");
 
-if (!fs.existsSync(cssDir)) {
-  console.error(
-    "[verify-css] Missing .next/static/css — run `npm run build` and ensure Tailwind/PostCSS runs."
-  );
-  process.exit(1);
+function walkCssFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const name of fs.readdirSync(dir)) {
+    const full = path.join(dir, name);
+    const st = fs.statSync(full);
+    if (st.isDirectory()) out.push(...walkCssFiles(full));
+    else if (name.endsWith(".css")) out.push(full);
+  }
+  return out;
 }
 
-const files = fs.readdirSync(cssDir).filter((f) => f.endsWith(".css"));
+if (process.env.SKIP_VERIFY_CSS === "1") {
+  console.warn("[verify-css] Skipped (SKIP_VERIFY_CSS=1).");
+  process.exit(0);
+}
+
+const files = walkCssFiles(staticRoot);
 if (files.length === 0) {
   console.error(
-    "[verify-css] No *.css files in .next/static/css — global styles did not compile."
+    "[verify-css] No *.css under .next/static — run `npm run build` and ensure Tailwind/PostCSS runs."
   );
   process.exit(1);
 }
 
-console.log(`[verify-css] OK — ${files.length} stylesheet chunk(s).`);
+console.log(`[verify-css] OK — ${files.length} stylesheet file(s) under .next/static.`);

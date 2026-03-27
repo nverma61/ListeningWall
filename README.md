@@ -1,7 +1,6 @@
 # Listening Wall
 
-A production-style MVP: anonymous/pseudonymous discussion for teens and parents, with Supabase Auth + Postgres + RLS, The Wall (parent/teen columns by topic), moderation tooling, and community prompt suggestions.
-
+A quieter place to say what you really feel. Anonymous sharing for teens and parents, designed for honesty, reflection, and understanding.
 ## Stack
 
 - Next.js 14 (App Router), TypeScript, Tailwind, shadcn/ui

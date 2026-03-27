@@ -1,0 +1,11 @@
+---
+description: Prevent unstyled UI — root layout and global CSS for Next.js App Router
+globs: app/layout.tsx
+alwaysApply: false
+---
+
+# Root layout and styles
+
+- Do **not** add a `<head>` element to `app/layout.tsx`. Next.js App Router injects `<link rel="stylesheet">` and metadata for you; a manual or empty `<head>` can prevent those from being applied, so the app renders with **no Tailwind/CSS** (smashed nav, default Times font).
+- Keep `import "./globals.css"` in this file only at the root layout (not duplicated in nested layouts unless you have a deliberate reason).
+- Production builds run `node scripts/verify-css-build.mjs` after `next build`. If that fails, Tailwind/PostCSS did not emit CSS — fix before shipping.
